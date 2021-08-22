@@ -1,4 +1,3 @@
-//// import './types.d.ts';
 import * as React from "react";
 import randomEmoji from "random-unicode-emoji";
 
@@ -29,14 +28,14 @@ const shuffleArray = (array: []) => {
 const generateGame = (n_cards: number) => {
   const emojis = randomEmoji.random({ count: n_cards });
   const doubleEmojis = emojis
-    .map((character: any) => [character, character])
+    .map((character: Emoji) => [character, character])
     .flat();
   return shuffleArray(doubleEmojis);
 };
 
 const Board: React.FC<{
   shownCards: Emoji[];
-  handleClick: any;
+  handleClick: (i: number) => void;
 }> = ({ shownCards, handleClick }) => {
   return (
     <div style={{ display: "flex" }}>
@@ -47,10 +46,10 @@ const Board: React.FC<{
   );
 };
 
-const Card: React.FC<{ value: Emoji; handleClick: any }> = ({
-  value,
-  handleClick,
-}) => {
+const Card: React.FC<{
+  value: Emoji;
+  handleClick: React.MouseEventHandler<HTMLButtonElement>;
+}> = ({ value, handleClick }) => {
   return (
     <div style={{ marginRight: "4px", width: 50, height: 50 }}>
       <button

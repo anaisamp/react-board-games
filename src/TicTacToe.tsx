@@ -1,13 +1,17 @@
-
 import * as React from "react";
 
 type BoardGrid = string[][];
 type Turn = "X" | "0";
 
-type IAppState = {
+type AppState = {
   grid: BoardGrid;
   turn: Turn;
   status: "inProgress" | "success";
+};
+
+type AppActions = {
+  type: "RESET" | "CLICK";
+  payload?: any;
 };
 
 const generateGrid = (rows: number, columns: number, mapper: () => string) => {
@@ -56,7 +60,7 @@ const checkForDraw = (grid: string[]) => {
 // };
 // transforming initialState into a function to avoid passing the same reference of initial state.
 // usefull when we have a game that uses some randomness to generate the board.
-const getInitialState: () => IAppState = () => ({
+const getInitialState: () => AppState = () => ({
   grid: generateTicTacToeGrid(),
   turn: "X",
   status: "inProgress",
@@ -64,7 +68,7 @@ const getInitialState: () => IAppState = () => ({
 
 const clone = (obj: any) => JSON.parse(JSON.stringify(obj)); // deeply copy
 
-const reducer = (state: IAppState, action: any) => {
+const reducer = (state: AppState, action: AppActions) => {
   if (state.status === "success" && action.type !== "RESET") {
     return state;
   }
@@ -113,27 +117,27 @@ const TicTacToe = () => {
 
   const { grid, turn, status } = state;
 
-  const handleCellClick = (xIndex: number, yIndex: number) =>
+  const handleClick = (xIndex: number, yIndex: number) =>
     dispatch({ type: "CLICK", payload: { x: xIndex, y: yIndex } });
 
   const handleReset = () => dispatch({ type: "RESET" });
 
   return (
-    <div style={{marginTop: 50}}>
+    <div style={{ marginTop: 50 }}>
       <div>{status === "inProgress" ? `Next turn: ${turn}` : null}</div>
       <div>{status === "success" ? `${turn} won!` : null}</div>
       <button style={{ display: "block" }} type="button" onClick={handleReset}>
         Reset
       </button>
-      <Grid grid={grid} handleCellClick={handleCellClick} />
+      <Grid grid={grid} handleClick={handleClick} />
     </div>
   );
 };
 
-const Grid: React.FC<{ grid: BoardGrid; handleCellClick: any }> = ({
-  grid,
-  handleCellClick,
-}) => {
+const Grid: React.FC<{
+  grid: BoardGrid;
+  handleClick: (x: number, y: number) => void;
+}> = ({ grid, handleClick: handleCellClick }) => {
   return (
     <div style={{ display: "inline-block" }}>
       <div
@@ -159,10 +163,10 @@ const Grid: React.FC<{ grid: BoardGrid; handleCellClick: any }> = ({
   );
 };
 
-const Cell: React.FC<{ value: string; handleCellClick: any }> = ({
-  value,
-  handleCellClick,
-}) => {
+const Cell: React.FC<{
+  value: string;
+  handleCellClick: React.MouseEventHandler<HTMLButtonElement>;
+}> = ({ value, handleCellClick }) => {
   return (
     <div style={{ backgroundColor: "#fff", width: 100, height: 100 }}>
       <button
